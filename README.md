@@ -31,6 +31,10 @@ if you show branch timer before it branch will be undefined.
 * Contorl timer from status bar
 * Click on duration for copy it  with branch
 
+### 0.0.2
+
+* Changed saved json directory And Added to .gitignore
+
 ---
 
 ## Following extension guidelines
