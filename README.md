@@ -33,7 +33,7 @@ if you show branch timer before it branch will be undefined.
 
 ### 0.0.2
 
-* Changed saved json directory And Added to .gitignore
+* Changed saved json directory to .vscode And Added to .gitignore
 
 ---
 
