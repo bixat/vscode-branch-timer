@@ -2,7 +2,7 @@
 import * as path from "path";
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { extensions, commands, Uri,env, RelativePattern, ExtensionContext, workspace } from 'vscode';
+import { extensions, commands, Uri, env, RelativePattern, ExtensionContext, workspace } from 'vscode';
 import { GitExtension } from './git';
 const fs = require('fs');
 import Timer from './Timer';
@@ -140,7 +140,7 @@ function addToGitIgnore(workspacePath: string) {
         }
         console.log('Added branch timer file to gitignore!');
       });
-    }else{
+    } else {
       console.log("Already Added");
     }
   }
