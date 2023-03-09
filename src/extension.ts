@@ -92,7 +92,8 @@ export function activate(context: ExtensionContext) {
     <tr>
       <th>Branch</th>
       <th>Duration</th> 
-      <th>Estimation</th> 
+      <th>Estimation</th>
+      <th>Percent</th> 
     </tr>`;
     for (let key in data) {
       let value = data[key];
@@ -101,6 +102,7 @@ export function activate(context: ExtensionContext) {
       <td>${key}</td>
       <td>${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}</td>
       <td><input class="estimation" type="time" step="2"></input></td>
+      <td class="percent">50%</td>
       </tr>`;
     }
     table += `</table>`;
