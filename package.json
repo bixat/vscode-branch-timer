@@ -43,18 +43,7 @@
       {
         "command": "extension.showTimer",
         "title": "Enable Branch Timer"
-      },
-      {
-				"command": "calicoColors.addColor",
-				"category": "Calico Colors",
-				"title": "Add Color"
-			},
-			{
-				"command": "calicoColors.clearColors",
-				"category": "Calico Colors",
-				"title": "Clear Colors",
-				"icon": "$(clear-all)"
-			}
+      }
     ]
   },
   "scripts": {
