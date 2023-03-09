@@ -1,6 +1,5 @@
 'use strict';
 import { Console } from "console";
-
 import * as path from "path";
 const fs = require('fs');
 // The module 'vscode' contains the VS Code extensibility API
@@ -31,16 +30,9 @@ export function activate(context: ExtensionContext) {
 
   const workspacePath = workspace.workspaceFolders![0].uri.path;
   gitpath = path.join(workspacePath, ".git");
-  const gitIgnore = path.join(workspacePath, ".gitignore")
   jsonPath = path.join(workspacePath, ".vscode/branch-timer.json");
   gitBranch = getCurrentGitBranch(Uri.parse(gitpath));
-
-  fs.appendFile(gitIgnore, '.vscode/branch-timer.json', function (err:any) {
-    if (err){
-      console.log(err);
-    }
-    console.log('Saved!');
-  });
+  addToGitIgnore(workspacePath);
   timer = new Timer(gitBranch!);
   if (fs.existsSync(jsonPath)) {
     var jsonFile: string = fs.readFileSync(jsonPath, 'utf8');
@@ -189,5 +181,3 @@ function addToGitIgnore(workspacePath: string) {
     }
   }
 }
-
-
