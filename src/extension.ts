@@ -1,18 +1,21 @@
 'use strict';
 import { Console } from "console";
+
 import * as path from "path";
+const fs = require('fs');
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import { extensions, commands, Uri, window, RelativePattern, ExtensionContext, workspace } from 'vscode';
 import { GitExtension } from './git';
-const fs = require('fs');
-import Timer from './Timer';
+
+import Timer, { secondsToHms, zeroBase } from './Timer';
+import { ColorsViewProvider } from "./view";
 
 
 let timer: Timer;
 let gitBranch: string | undefined;
 let gitpath: string | undefined;
-let jsonPath: string | undefined;
+export let jsonPath: string | undefined;
 export var data = JSON.parse("{}");
 
 // this method is called when your extension is activated
@@ -26,15 +29,6 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider));
 
-	context.subscriptions.push(
-	commands.registerCommand('calicoColors.addColor', () => {
-			provider.addColor();
-		}));
-
-	context.subscriptions.push(
-		commands.registerCommand('calicoColors.clearColors', () => {
-			provider.clearColors();
-		}));
   const workspacePath = workspace.workspaceFolders![0].uri.path;
   gitpath = path.join(workspacePath, ".git");
   const gitIgnore = path.join(workspacePath, ".gitignore")
@@ -51,20 +45,24 @@ export function activate(context: ExtensionContext) {
   if (fs.existsSync(jsonPath)) {
     var jsonFile: string = fs.readFileSync(jsonPath, 'utf8');
     data = JSON.parse(jsonFile);
+    updateHtml();
     timer.total = data[gitBranch!] ?? 0;
   }
   const pattern = new RelativePattern(gitpath, "HEAD");
   const watcher = workspace.createFileSystemWatcher(pattern, false, false);
   watcher.onDidCreate(e => {
     updateBranch();
+    updateHtml();
     console.log(".git/HEAD create detected");
   });
   watcher.onDidChange(e => {
     updateBranch();
+    updateHtml();
     console.log(".git/HEAD change detected");
   });
   workspace.onDidChangeConfiguration(e => {
     updateBranch();
+    updateHtml();
     console.log("Configuration change detected");
   });
 
@@ -88,6 +86,26 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(stopTimer);
   context.subscriptions.push(copyTimer);
   context.subscriptions.push(startTimer);
+
+  function updateHtml() {
+    var table = `<table>
+    <tr>
+      <th>Branch</th>
+      <th>Duration</th> 
+      <th>Estimation</th> 
+    </tr>`;
+    for (let key in data) {
+      let value = data[key];
+      var t = secondsToHms(value);
+      table += ` <tr>
+      <td>${key}</td>
+      <td>${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}</td>
+      <td><input class="estimation" type="time" step="2"></input></td>
+      </tr>`;
+    }
+    table += `</table>`;
+    provider.updateHtml(table);
+  }
 }
 
 function updateBranch() {
@@ -171,118 +189,3 @@ function addToGitIgnore(workspacePath: string) {
 }
 
 
-
-
-class ColorsViewProvider implements vscode.WebviewViewProvider {
-
-	public static readonly viewType = 'calicoColors.colorsView';
-
-	private _view?: vscode.WebviewView;
-
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
-	) { }
-
-	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
-	) {
-		this._view = webviewView;
-
-		webviewView.webview.options = {
-			// Allow scripts in the webview
-			enableScripts: true,
-
-			localResourceRoots: [
-				this._extensionUri
-			]
-		};
-
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-
-		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'colorSelected':
-					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
-					}
-			}
-		});
-	}
-
-	public addColor() {
-
-		if (this._view) {
-			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-			this._view.webview.postMessage({ type: 'addColor' });
-		}
-	}
-
-	public clearColors() {
-		if (this._view) {
-			this._view.webview.postMessage({ type: 'clearColors' });
-		}
-	}
-
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
-
-		// Do the same for the stylesheet.
-		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
-		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
-
-		// Use a nonce to only allow a specific script to be run.
-		const nonce = getNonce();
-    var table = `<table>
-    <tr>
-      <th>Branch</th>
-      <th>Duration</th> 
-    </tr>`;
-    for (let key in data) {
-      let value = data[key];
-      table+=` <tr>
-      <td>${key}</td>
-      <td>${value}</td>
-    </tr>`;
-
-      // Use `key` and `value`
-  }
-  table+=`</table>`;
-
-		return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading styles from our extension directory,
-					and only allow scripts that have a specific nonce.
-					(See the 'webview-sample' extension sample for img-src content security policy examples)
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<link href="${styleResetUri}" rel="stylesheet">
-				<link href="${styleVSCodeUri}" rel="stylesheet">
-				<link href="${styleMainUri}" rel="stylesheet">
-				<title>Cat Colors</title>
-			</head>
-			<body>
-				${table}
-				<button class="add-color-button">Refresh</button>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-			</html>`;
-	}
-}
-
-function getNonce() {
-	let text = '';
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
-}
