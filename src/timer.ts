@@ -69,7 +69,7 @@ export default class Timer {
   }
 }
 
- function secondsToHms(d: number) {
+ export function secondsToHms(d: number) {
   d = Number(d);
   var h = Math.floor(d / 3600);
   var m = Math.floor(d % 3600 / 60);
@@ -81,6 +81,6 @@ export default class Timer {
     s: s
   };
 }
- function zeroBase(value: number) {
+export function zeroBase(value: number) {
   return value < 10 ? `0${value}` : value;
 }
