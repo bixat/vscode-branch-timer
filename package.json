@@ -20,11 +20,41 @@
   },
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "branch-timer",
+          "title": "Package Explorer",
+          "icon": "icon.svg"
+        }
+      ]
+    },
+    "views": {
+      
+      "branch-timer": [
+        {
+        "type": "webview",
+        "id": "calicoColors.colorsView",
+        "name": "Calico Colors"
+      }
+      ]
+    },
     "commands": [
       {
         "command": "extension.showTimer",
-        "title": "Show Branch Timer"
-      }
+        "title": "Enable Branch Timer"
+      },
+      {
+				"command": "calicoColors.addColor",
+				"category": "Calico Colors",
+				"title": "Add Color"
+			},
+			{
+				"command": "calicoColors.clearColors",
+				"category": "Calico Colors",
+				"title": "Clear Colors",
+				"icon": "$(clear-all)"
+			}
     ]
   },
   "scripts": {

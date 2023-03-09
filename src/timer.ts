@@ -50,8 +50,8 @@ export default class Timer {
     this._statusBarPauseButton.show();
     this._timer = setInterval(() => {
       this.total++;
-      let t = this.secondsToHms(this.total);
-      this._statusBarItem.text = `${this._zeroBase(t.h)}:${this._zeroBase(t.m)}:${this._zeroBase(t.s)}`
+      let t = secondsToHms(this.total);
+      this._statusBarItem.text = `${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}`
     }, 1000);
   }
   public showTimer() {
@@ -67,21 +67,20 @@ export default class Timer {
     this._statusBarPauseButton.hide();
     clearInterval(this._timer);
   }
+}
 
-  public secondsToHms(d: number) {
-    d = Number(d);
-    var h = Math.floor(d / 3600);
-    var m = Math.floor(d % 3600 / 60);
-    var s = Math.floor(d % 3600 % 60);
+ function secondsToHms(d: number) {
+  d = Number(d);
+  var h = Math.floor(d / 3600);
+  var m = Math.floor(d % 3600 / 60);
+  var s = Math.floor(d % 3600 % 60);
 
-    return {
-      h: h,
-      m: m,
-      s: s
-    };
-  }
-
-  private _zeroBase(value: number) {
-    return value < 10 ? `0${value}` : value;
-  }
+  return {
+    h: h,
+    m: m,
+    s: s
+  };
+}
+ function zeroBase(value: number) {
+  return value < 10 ? `0${value}` : value;
 }
