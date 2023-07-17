@@ -24,6 +24,7 @@ export function activate(context: ExtensionContext) {
   gitBranch = getCurrentGitBranch(Uri.parse(gitpath));
   addToGitIgnore(workspacePath);
   timer = new Timer(gitBranch!);
+  checkWindowFocus(timer);
   if (fs.existsSync(jsonPath)) {
     var jsonFile: string = fs.readFileSync(jsonPath, 'utf8');
     data = JSON.parse(jsonFile);
@@ -144,4 +145,22 @@ function addToGitIgnore(workspacePath: string) {
       console.log("Already Added");
     }
   }
+}
+
+function checkWindowFocus(timer: Timer) {
+  const windowState = window.state;
+  let isFocused = windowState.focused;
+
+  // Listen for changes in the window state
+  window.onDidChangeWindowState((event) => {
+    isFocused = event.focused;
+
+    if (isFocused) {
+      console.log("VSCode is focused");
+      timer.start();
+    } else {
+      console.log("VSCode is not focused");
+      timer.stop();
+    }
+  });
 }
