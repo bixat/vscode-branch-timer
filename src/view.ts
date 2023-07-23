@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { data, jsonPath } from "./extension";
-import * as path from "path";
+import { data } from "./extension";
+import { secondsToHms, zeroBase } from "./timer";
 const fs = require('fs');
 
 export class ColorsViewProvider implements vscode.WebviewViewProvider {
@@ -8,7 +8,6 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'calicoColors.colorsView';
 
 	private _view?: vscode.WebviewView;
-
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
 	) { }
@@ -29,25 +28,23 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 			]
 		};
 
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview,"");
+		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 		webviewView.webview.onDidReceiveMessage(data => {
-			this.updateHtml(data.value);
+			if(data.type === "copy"){
+				vscode.env.clipboard.writeText(data.value);
+				vscode.window.showInformationMessage("Duration Copied : "+ data.value);
+			}else if (data.type === "refresh"){
+				this.updateHtml();
+			}
 		});
 	}
-	public updateHtml(table:string){
+	public updateHtml(){
 		if (this._view) {
-		this._view.webview.html = this._getHtmlForWebview(this._view.webview,table);
+		this._view.webview.html = this._getHtmlForWebview(this._view.webview);
 	}
 	}
-	// private saveEstimations() {
-	// 	if (fs.existsSync(jsonPath)) {
-	// 		var jsonFile: string = fs.readFileSync(jsonPath, 'utf8');
-	// 		var data = JSON.parse(jsonFile);
-	// 		data.map(({key, value}) => ({key, value}))
-	// 	  }
-	// }
 
-	private _getHtmlForWebview(webview: vscode.Webview, table:string) {
+	private _getHtmlForWebview(webview: vscode.Webview) {
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
@@ -67,17 +64,41 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleMainUri}" rel="stylesheet">
-				<title>Cat Colors</title>
+				<title>Branches duration</title>
 			</head>
 			<body>
-				${table}
-				<button class="save-button">Save</button>
+				${buildTable()}
+				<button class="refresh-button">Refresh</button>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
 	}
 }
-
+function buildTable() {
+	var table = `<table>
+	<tr>
+	  <th>Branch</th>
+	  <th>Duration</th>
+	  <th>Percent</th>
+	</tr>`;
+	var total = 0;
+	for (let key in data) {
+	  let value = data[key];
+	  total += value;
+	}
+	for (let key in data) {
+	  let value = data[key];
+	  var t = secondsToHms(value);
+	  table += ` <tr>
+	  <td>${key}</td>
+	  <td class="duration">${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}</td>
+	  <td> ${((value / total) * 100).toFixed(2)}%</td>
+	  <td><button class="copy-button" id="${key} : ${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}">Copy</button></td>
+	  </tr>`;
+	}
+	table += `</table>`;
+	return table;
+  }
 function getNonce() {
 	let text = '';
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

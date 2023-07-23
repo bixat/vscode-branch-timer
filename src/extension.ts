@@ -1,5 +1,4 @@
 'use strict';
-import { Console } from "console";
 import * as path from "path";
 const fs = require('fs');
 // The module 'vscode' contains the VS Code extensibility API
@@ -7,7 +6,7 @@ const fs = require('fs');
 import { extensions, commands, Uri, window, RelativePattern, ExtensionContext, workspace } from 'vscode';
 import { GitExtension } from './git';
 
-import Timer, { secondsToHms, zeroBase } from './Timer';
+import Timer, { secondsToHms, zeroBase } from './timer';
 import { ColorsViewProvider } from "./view";
 
 
@@ -23,11 +22,6 @@ export function activate(context: ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
 
-  const provider = new ColorsViewProvider(context.extensionUri);
-
-	context.subscriptions.push(
-		window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider));
-
   const workspacePath = workspace.workspaceFolders![0].uri.path;
   gitpath = path.join(workspacePath, ".git");
   jsonPath = path.join(workspacePath, ".vscode/branch-timer.json");
@@ -37,24 +31,27 @@ export function activate(context: ExtensionContext) {
   if (fs.existsSync(jsonPath)) {
     var jsonFile: string = fs.readFileSync(jsonPath, 'utf8');
     data = JSON.parse(jsonFile);
-    updateHtml();
     timer.total = data[gitBranch!] ?? 0;
   }
+  const provider = new ColorsViewProvider(context.extensionUri);
+
+	context.subscriptions.push(
+		window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider));
   const pattern = new RelativePattern(gitpath, "HEAD");
   const watcher = workspace.createFileSystemWatcher(pattern, false, false);
   watcher.onDidCreate(e => {
     updateBranch();
-    updateHtml();
+    provider.updateHtml();
     console.log(".git/HEAD create detected");
   });
   watcher.onDidChange(e => {
     updateBranch();
-    updateHtml();
+    provider.updateHtml();
     console.log(".git/HEAD change detected");
   });
   workspace.onDidChangeConfiguration(e => {
     updateBranch();
-    updateHtml();
+    provider.updateHtml();
     console.log("Configuration change detected");
   });
 
@@ -79,27 +76,7 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(copyTimer);
   context.subscriptions.push(startTimer);
 
-  function updateHtml() {
-    var table = `<table>
-    <tr>
-      <th>Branch</th>
-      <th>Duration</th> 
-      <th>Estimation</th>
-      <th>Percent</th> 
-    </tr>`;
-    for (let key in data) {
-      let value = data[key];
-      var t = secondsToHms(value);
-      table += ` <tr>
-      <td>${key}</td>
-      <td>${zeroBase(t.h)}:${zeroBase(t.m)}:${zeroBase(t.s)}</td>
-      <td><input class="estimation" type="time" step="2"></input></td>
-      <td class="percent">50%</td>
-      </tr>`;
-    }
-    table += `</table>`;
-    provider.updateHtml(table);
-  }
+  
 }
 
 function updateBranch() {
@@ -166,7 +143,7 @@ function getCurrentGitBranch(docUri: Uri): string | undefined {
 
 function addToGitIgnore(workspacePath: string) {
   var branchTimerPath = '.vscode/branch-timer.json';
-  const gitIgnore = path.join(workspacePath, ".gitignore")
+  const gitIgnore = path.join(workspacePath, ".gitignore");
   if (fs.existsSync(gitIgnore)) {
     var gitIgnoreFile: string = fs.readFileSync(gitIgnore, 'utf8');
     if (!gitIgnoreFile.includes(branchTimerPath)) {
