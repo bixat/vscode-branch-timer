@@ -1,4 +1,3 @@
-import path = require("path");
 import {
   workspace,
   StatusBarItem,
@@ -6,7 +5,6 @@ import {
   env,
   StatusBarAlignment,
 } from "vscode";
-const fs = require("fs");
 
 export default class Timer {
   private _statusBarItem!: StatusBarItem;
