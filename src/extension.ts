@@ -14,7 +14,7 @@ import {
 } from "vscode";
 import { GitExtension } from "./git";
 
-import Timer, { secondsToHms, zeroBase } from "./timer";
+import Timer from "./timer";
 import { ColorsViewProvider } from "./view";
 
 let timer: Timer;
