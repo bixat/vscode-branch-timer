@@ -45,6 +45,15 @@ export function activate(context: ExtensionContext) {
       })
     );
     timer.total = data[gitBranch!] ?? 0;
+  } else {
+    // create the directory if it doesn't exist
+    const dirPath = path.dirname(jsonPath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    // create the file
+    fs.writeFileSync(jsonPath, JSON.stringify({}));
   }
   const provider = new ColorsViewProvider(context.extensionUri);
 
