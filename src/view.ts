@@ -73,7 +73,6 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 			</head>
 			<body>
       <div class="col">
-      ${buildTable()}
       <div class="chart-container">
         <svg id="chart" viewBox="0 0 100 100"></svg>
         <div id="tooltip" class="tooltip"></div>
@@ -100,7 +99,6 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
             path.setAttribute('d', describeArc(50, 50, 45, startAngle, endAngle));
             path.setAttribute('data-branch', key);
             path.setAttribute('data-percent', percent.toFixed(2));
-
 
             path.addEventListener('mouseover', showTooltip);
             path.addEventListener('mouseout', hideTooltip);
@@ -136,11 +134,13 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         };
 
         const getRandomColor = () => {
-          const letters = '0123456789ABCDEF';
-          let color = '#';
+          const letters = "0123456789ABCDEF";
+          let color = "#";
           for (let i = 0; i < 6; i++) {
             color += letters[Math.floor(Math.random() * 16)];
           }
+          color += "80";
+        
           return color;
         };
 
@@ -162,8 +162,8 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         createChart();
       </script>
     </div>
+      ${buildTable()}
       </div>
-				<button class="refresh-button">Refresh</button>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
