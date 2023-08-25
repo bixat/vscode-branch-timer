@@ -94,6 +94,9 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(stopTimer);
   context.subscriptions.push(copyTimer);
   context.subscriptions.push(startTimer);
+  context.subscriptions.push(
+    window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider)
+  );
 }
 
 function updateBranch() {
