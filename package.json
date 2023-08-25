@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "vscode.git"
   ],
   "repository": {
       "type": "git",
