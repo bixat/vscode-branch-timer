@@ -74,7 +74,6 @@ Extension for track your work duration on every branch
 - Fixed branch undefined issue
 - Colored current branch
 
-## v0.1.8
-
+## v.1.8
+- Added autoAddToGitIgnore configuration for control add branch timer json to gitignore
 - Handled timer manually paused
----

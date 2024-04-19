@@ -131,6 +131,14 @@ function getCurrentGitBranch(): string {
 function addToGitIgnore(workspacePath: string) {
   var branchTimerPath = ".vscode/branch-timer.json";
   const gitIgnore = path.join(workspacePath, ".gitignore");
+  const config = workspace.getConfiguration("branchTimer");
+  const autoAddToGitIgnore = config.get("autoAddToGitIgnore");
+
+  if (!autoAddToGitIgnore) {
+    console.log("Auto add to .gitignore is disabled, skipping");
+    return;
+  }
+
   if (fs.existsSync(gitIgnore)) {
     var gitIgnoreFile: string = fs.readFileSync(gitIgnore, "utf8");
     if (!gitIgnoreFile.includes(branchTimerPath)) {
