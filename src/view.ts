@@ -36,7 +36,6 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         vscode.window.showInformationMessage("API Key Saved Successfully");
       } else if (data.type === "helpApiKey") {
         vscode.env.openExternal(vscode.Uri.parse("https://www.example.com/api-key-instructions"));
-
       }
     });
   }

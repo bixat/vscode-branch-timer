@@ -13,6 +13,7 @@ import {
 
 import Timer from "./timer";
 import { ColorsViewProvider } from "./view";
+import { postDataFromTimerBranchJson } from "./api";
 
 let timer: Timer;
 export let gitBranch: string | undefined;
@@ -102,6 +103,7 @@ export function activate(context: ExtensionContext) {
       provider.updateHtml();
     }
   }));
+  syncApi();
 }
 
 function updateBranch() {
@@ -123,6 +125,7 @@ function updateBranch() {
 // this method is called when your extension is deactivated
 export function deactivate() {
   updateBranch();
+  syncApi();
 }
 
 function getCurrentGitBranch(): string {
@@ -156,6 +159,17 @@ function addToGitIgnore(workspacePath: string) {
       console.log("Already Added");
     }
   }
+}
+
+function syncApi() {
+  const config = workspace.getConfiguration('branchTimer');
+  const apiKey = config.inspect("apiKey")?.globalValue;
+  if (typeof apiKey === 'string' && apiKey) {
+    const pathComponents = workspacePath.split(path.sep);
+    const repo = pathComponents[pathComponents.length - 1];
+    postDataFromTimerBranchJson(apiKey, repo);
+  }
+
 }
 
 function checkWindowFocus(timer: Timer) {
