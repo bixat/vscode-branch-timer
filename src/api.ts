@@ -13,7 +13,7 @@ export async function checkApiKey(apiKey: string): Promise<boolean> {
 }
 
 // Function to post data from timerBranch.json
-export async function postDataFromTimerBranchJson(apiKey: string, data: any): Promise<void> {
+export async function postBranchDuration(apiKey: string, data: any): Promise<void> {
     try {
         // Assuming you're targeting the first workspace folder
         // const workspaceFolder = workspace.workspaceFolders?.[0];

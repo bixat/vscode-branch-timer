@@ -13,7 +13,7 @@ import {
 
 import Timer from "./timer";
 import { ColorsViewProvider } from "./view";
-import { postDataFromTimerBranchJson } from "./api";
+import { postBranchDuration } from "./api";
 
 let timer: Timer;
 export let gitBranch: string | undefined;
@@ -173,7 +173,7 @@ function syncApi() {
       "branch": gitBranch,
       "duration": timer.total
     };
-    postDataFromTimerBranchJson(apiKey, data);
+    postBranchDuration(apiKey, data);
   }
 
 }
