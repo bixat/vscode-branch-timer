@@ -37,13 +37,13 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         const apiKey = this.config.inspect("apiKey")?.globalValue;
         if (apiKey) {
           this.config.update('apiKey', "", vscode.ConfigurationTarget.Global);
-          vscode.window.showInformationMessage("Logged out successfully");
+          vscode.window.showInformationMessage("Branch Timer Logged out successfully");
           this.updateHtml();
         } else {
           if (await checkApiKey(data.value)) {
             this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
             this.updateHtml();
-            vscode.window.showInformationMessage("API Key Saved Successfully");
+            vscode.window.showInformationMessage("Branch Timer Loggedin Successfully");
           } else {
             vscode.window.showErrorMessage("Invalid API Key");
           }
