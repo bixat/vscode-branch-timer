@@ -2,7 +2,6 @@
 // It cannot access the main VS Code APIs directly.
 (function () {
   const vscode = acquireVsCodeApi();
-
   document.querySelector(".refresh-button").addEventListener("click", () => {
     vscode.postMessage({ type: "refresh" });
   });
@@ -11,10 +10,13 @@
       vscode.postMessage({ type: "copy", value: element.id });
     });
   }
-  document.querySelector("#api-key-login").addEventListener("click", () => {
-    const apiKey = document.querySelector("#api-key-input").value;
-    vscode.postMessage({ type: "saveApiKey", value: apiKey });
+  document.getElementById("api-key-session").addEventListener("click", () => {
+    const apiKey = document.querySelector("#api-key-input")
+      ? document.querySelector("#api-key-input").value
+      : "";
+    vscode.postMessage({ type: "session", value: apiKey });
   });
+
   document
     .getElementById("api-key-help")
     .addEventListener("click", function () {

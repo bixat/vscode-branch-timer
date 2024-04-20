@@ -84,6 +84,7 @@ export function activate(context: ExtensionContext) {
   });
   let stopTimer = commands.registerCommand("extension.stopTimer", () => {
     isPausedManually = true;
+    syncApi();
     timer.stop();
   });
   let copyTimer = commands.registerCommand("extension.copyTimer", () => {

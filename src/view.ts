@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { data, gitBranch } from "./extension";
 import { secondsToHms, zeroBase } from "./timer";
 import { checkApiKey } from "./api";
+import { warn } from "console";
 const fs = require("fs");
 
 export class ColorsViewProvider implements vscode.WebviewViewProvider {
@@ -26,18 +27,26 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
     webviewView.webview.onDidReceiveMessage(async (data) => {
+      warn(data);
       if (data.type === "copy") {
         vscode.env.clipboard.writeText(data.value);
         vscode.window.showInformationMessage("Duration Copied : " + data.value);
       } else if (data.type === "refresh") {
         this.updateHtml();
-      } else if (data.type === "saveApiKey") {
-        if (await checkApiKey(data.value)) {
-          this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
+      } else if (data.type === "session") {
+        const apiKey = this.config.inspect("apiKey")?.globalValue;
+        if (apiKey) {
+          this.config.update('apiKey', "", vscode.ConfigurationTarget.Global);
+          vscode.window.showInformationMessage("Logged out successfully");
           this.updateHtml();
-          vscode.window.showInformationMessage("API Key Saved Successfully");
         } else {
-          vscode.window.showErrorMessage("Invalid API Key");
+          if (await checkApiKey(data.value)) {
+            this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
+            this.updateHtml();
+            vscode.window.showInformationMessage("API Key Saved Successfully");
+          } else {
+            vscode.window.showErrorMessage("Invalid API Key");
+          }
         }
       } else if (data.type === "helpApiKey") {
         vscode.env.openExternal(vscode.Uri.parse("https://www.example.com/api-key-instructions"));
@@ -65,14 +74,15 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
     );
 
     const apiKey = this.config.inspect("apiKey")?.globalValue;
-    var loginItems = "";
+    var loginItems = `<button id="api-key-session">Logout</button>`;
+
     if (!apiKey) {
       loginItems = `
              <div class="col">
                 <label for="api-key-input">API Key : <a id="api-key-help">How get branch timer api key</a></label>
                 <div class="row">
                   <input type="text" id="api-key-input"/>
-                  <button id="api-key-login" type="button">Login</button>
+                  <button id="api-key-session" type="button">Login</button>
                 </div>
             </div>
       `;

@@ -27,7 +27,7 @@ export async function postBranchDuration(apiKey: string, data: any): Promise<voi
 
         await axios.post('http://127.0.0.1:8000/capture_duration/', data, {
             headers: {
-                "Authorization": `Token ${apiKey}`
+                "authorization": `Token ${apiKey}`
             }
         });
 
