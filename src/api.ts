@@ -6,11 +6,7 @@ import { workspace } from 'vscode';
 // Function to check the API key
 export async function checkApiKey(apiKey: string): Promise<boolean> {
     try {
-        const response = await axios.get('https://your-api-endpoint.com/check-api-key', {
-            headers: {
-                'Authorization': `Bearer ${apiKey}`
-            }
-        });
+        const response = await axios.get('https://your-api-endpoint.com/check-api-key');
 
         // Assuming the API returns a boolean indicating if the key is valid
         return response.data.isValid;
@@ -35,7 +31,7 @@ export async function postDataFromTimerBranchJson(apiKey: string, repo: string):
 
         await axios.post('https://your-api-endpoint.com/post-data', data, {
             headers: {
-                'Authorization': `Token ${apiKey}`
+                'authorization': `Token ${apiKey}`
             }
         });
 
