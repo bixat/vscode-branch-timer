@@ -34,6 +34,9 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
         this.updateHtml();
         vscode.window.showInformationMessage("API Key Saved Successfully");
+      } else if (data.type === "helpApiKey") {
+        vscode.env.openExternal(vscode.Uri.parse("https://www.example.com/api-key-instructions"));
+
       }
     });
   }
@@ -61,13 +64,13 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
     var loginItems = "";
     if (!apiKey) {
       loginItems = `
-       <div class="col">
-          <label for="api-key-input">API Key:</label>
-          <div class="row">
-            <input type="text" id="api-key-input"/>
-            <button id="api-key-login" type="button">Login</button>
-          </div>
-      </div>
+             <div class="col">
+                <label for="api-key-input">API Key : <a id="api-key-help">How get branch timer api key</a></label>
+                <div class="row">
+                  <input type="text" id="api-key-input"/>
+                  <button id="api-key-login" type="button">Login</button>
+                </div>
+            </div>
       `;
     }
 

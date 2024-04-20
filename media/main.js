@@ -15,4 +15,9 @@
     const apiKey = document.querySelector("#api-key-input").value;
     vscode.postMessage({ type: "saveApiKey", value: apiKey });
   });
+  document
+    .getElementById("api-key-help")
+    .addEventListener("click", function () {
+      vscode.postMessage({ type: "helpApiKey", value: "" });
+    });
 })();
