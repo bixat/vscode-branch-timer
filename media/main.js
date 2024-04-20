@@ -11,4 +11,8 @@
       vscode.postMessage({ type: "copy", value: element.id });
     });
   }
+  document.querySelector("#api-key-login").addEventListener("click", () => {
+    const apiKey = document.querySelector("#api-key-input").value;
+    vscode.postMessage({ type: "saveApiKey", value: apiKey });
+  });
 })();

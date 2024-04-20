@@ -4,9 +4,7 @@ const fs = require("fs");
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import {
-  extensions,
   commands,
-  Uri,
   window,
   RelativePattern,
   ExtensionContext,
@@ -98,6 +96,12 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider)
   );
+
+  context.subscriptions.push(workspace.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration('branchTimer.apiKey')) {
+      provider.updateHtml();
+    }
+  }));
 }
 
 function updateBranch() {

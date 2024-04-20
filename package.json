@@ -19,8 +19,8 @@
     "workspaceContains:.git"
   ],
   "repository": {
-      "type": "git",
-      "url": "https://github.com/M97Chahboun/branch-timer.git"
+    "type": "git",
+    "url": "https://github.com/M97Chahboun/branch-timer.git"
   },
   "main": "./out/extension.js",
   "contributes": {
@@ -34,13 +34,12 @@
       ]
     },
     "views": {
-      
       "branch-timer": [
         {
-        "type": "webview",
-        "id": "branches.timers",
-        "name": "Branches Timers"
-      }
+          "type": "webview",
+          "id": "branches.timers",
+          "name": "Branches Timers"
+        }
       ]
     },
     "commands": [
@@ -49,16 +48,21 @@
         "title": "Enable Branch Timer"
       }
     ],
-  "configuration": {
-    "title": "Branch Timer",
-    "properties": {
-      "branchTimer.autoAddToGitIgnore": {
-        "type": "boolean",
-        "default": true,
-        "description": "Automatically add .vscode/branch-timer.json to .gitignore"
+    "configuration": {
+      "title": "Branch Timer",
+      "properties": {
+        "branchTimer.autoAddToGitIgnore": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically add .vscode/branch-timer.json to .gitignore"
+        },
+        "branchTimer.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API Key for Branch Timer"
+        }
       }
     }
-  }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

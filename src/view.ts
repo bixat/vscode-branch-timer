@@ -5,9 +5,9 @@ const fs = require("fs");
 
 export class ColorsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "branches.timers";
-
+  config = vscode.workspace.getConfiguration('branchTimer');
   private _view?: vscode.WebviewView;
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(private readonly _extensionUri: vscode.Uri) { }
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -30,6 +30,10 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
         vscode.window.showInformationMessage("Duration Copied : " + data.value);
       } else if (data.type === "refresh") {
         this.updateHtml();
+      } else if (data.type === "saveApiKey") {
+        this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
+        this.updateHtml();
+        vscode.window.showInformationMessage("API Key Saved Successfully");
       }
     });
   }
@@ -52,6 +56,21 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "media", "main.css")
     );
+
+    const apiKey = this.config.inspect("apiKey")?.globalValue;
+    var loginItems = "";
+    if (!apiKey) {
+      loginItems = `
+       <div class="col">
+          <label for="api-key-input">API Key:</label>
+          <div class="row">
+            <input type="text" id="api-key-input"/>
+            <button id="api-key-login" type="button">Login</button>
+          </div>
+      </div>
+      `;
+    }
+
     const nonce = getNonce();
     return `<!DOCTYPE html>
 			<html lang="en">
@@ -62,9 +81,8 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 					and only allow scripts that have a specific nonce.
 					(See the 'webview-sample' extension sample for img-src content security policy examples)
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${
-          webview.cspSource
-        }; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource
+      }; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
@@ -72,7 +90,7 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
 				<title>Branches duration</title>
 			</head>
 			<body>
-      <div class="col">
+      ${loginItems}
       <div class="chart-container">
         <svg id="chart" viewBox="0 0 100 100"></svg>
         <div id="tooltip" class="tooltip"></div>
