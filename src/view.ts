@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { data, gitBranch } from "./extension";
 import { secondsToHms, zeroBase } from "./timer";
+import { checkApiKey } from "./api";
 const fs = require("fs");
 
 export class ColorsViewProvider implements vscode.WebviewViewProvider {
@@ -24,16 +25,20 @@ export class ColorsViewProvider implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-    webviewView.webview.onDidReceiveMessage((data) => {
+    webviewView.webview.onDidReceiveMessage(async (data) => {
       if (data.type === "copy") {
         vscode.env.clipboard.writeText(data.value);
         vscode.window.showInformationMessage("Duration Copied : " + data.value);
       } else if (data.type === "refresh") {
         this.updateHtml();
       } else if (data.type === "saveApiKey") {
-        this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
-        this.updateHtml();
-        vscode.window.showInformationMessage("API Key Saved Successfully");
+        if (await checkApiKey(data.value)) {
+          this.config.update('apiKey', data.value, vscode.ConfigurationTarget.Global);
+          this.updateHtml();
+          vscode.window.showInformationMessage("API Key Saved Successfully");
+        } else {
+          vscode.window.showErrorMessage("Invalid API Key");
+        }
       } else if (data.type === "helpApiKey") {
         vscode.env.openExternal(vscode.Uri.parse("https://www.example.com/api-key-instructions"));
       }

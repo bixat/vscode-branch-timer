@@ -107,6 +107,7 @@ export function activate(context: ExtensionContext) {
 }
 
 function updateBranch() {
+  syncApi();
   data[gitBranch!] = timer.total;
   gitBranch = getCurrentGitBranch();
   timer.stop();
@@ -167,7 +168,12 @@ function syncApi() {
   if (typeof apiKey === 'string' && apiKey) {
     const pathComponents = workspacePath.split(path.sep);
     const repo = pathComponents[pathComponents.length - 1];
-    postDataFromTimerBranchJson(apiKey, repo);
+    const data = {
+      "repo": repo,
+      "branch": gitBranch,
+      "duration": timer.total
+    };
+    postDataFromTimerBranchJson(apiKey, data);
   }
 
 }
